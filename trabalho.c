@@ -17,6 +17,8 @@ struct Mensagem mensagem;
 pthread_mutex_t cmp;                /* Lock para o jogador entrar e sair do campo */
 pthread_mutex_t msg;                /* Lock para o jogador se comunicar com o treinador */
 pthread_mutex_t ans;                /* Lock para o jogador receber a resposta do treinador */
+pthread_mutex_t msgBanco;           /* Lock para o jogador do banco se comunicar com o treinador */
+pthread_cond_t  banco;              /* Variável de condição para o jogador do banco esperar o treinador chamá-lo */
 pthread_cond_t trn;                 /* Variável de condição para acordar o treinador */
 pthread_cond_t jgr;                 /* Variável de condição para fazer o jogador esperar a resposta do treinador */
 
@@ -108,9 +110,9 @@ void* jogador(void *arg) {
                 energia += rand()%21 + 5;
                 printf("%d Recuperando energia: %d \n", id, energia);
             } else {
-                printf("%d Estou descansado. Vou esperar o treinador me chamar. \n", id)
+                printf("%d Estou descansado. Vou esperar o treinador me chamar. \n", id);
                 pthread_mutex_lock(&msgBanco);
-                while(msgBanco == 0) {
+                while(jgrBanco == 0) {
 
                     pthread_cond_wait(&banco);
 
@@ -129,6 +131,8 @@ void main() {
     pthread_mutex_init(&cmp, NULL);
     pthread_mutex_init(&msg, NULL);
     pthread_mutex_init(&ans, NULL);
+    pthread_mutex_init(&msgBanco, NULL);
+    pthread_cond_init(&banco, NULL);
     pthread_cond_init(&trn, NULL);    
     pthread_cond_init(&jgr, NULL);
     pthread_t j[NJ+NB];
